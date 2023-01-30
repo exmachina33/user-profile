@@ -201,7 +201,7 @@ export default {
     },
     confirmCreatedPasswordError() {
       if(!this.v$.createdPassword.$dirty) return false;
-      return this.v$.confirmCreatedPassword.$invalid && this.v$.confirmCreatedPassword.$dirty || this.errors.confirmCreatedPassword;
+      return this.v$.confirmCreatedPassword.required.$invalid && this.v$.confirmCreatedPassword.$dirty || this.errors.confirmCreatedPassword;
     },
     nameError() {
       if(!this.v$.name.$dirty) return false;
@@ -299,35 +299,35 @@ export default {
       loadingOff: "loadingOff"
     }),
     async formValidate() {
-      switch (false) {
-        case await this.v$.confirmCreatedPassword.$validate():
-          this.errors.confirmCreatedPassword = true;
-          return false;
-          break;
-        case await this.v$.oldPassword.$validate():
-          this.errors.oldPassword = true;
-          return false;
-          break;
-        case await this.v$.confirmNewPassword.$validate():
-          this.errors.confirmNewPassword = true;
-          return false;
-          break;
-        case await this.v$.$validate():
-          return false;
-          break;
-        default:
-          return true
+      let formIsValidate = await this.v$.$validate()
+      if(this.user) {
+        switch (false) {
+          case await this.v$.oldPassword.$validate():
+            this.errors.oldPassword = true;
+            break;
+          case await this.v$.confirmNewPassword.$validate():
+            this.errors.confirmNewPassword = true;
+            break;
+        }
+      } else {
+        switch (false) {
+          case await this.v$.confirmCreatedPassword.$validate():
+            this.errors.confirmCreatedPassword = true;
+            break;
+        }
       }
+      return formIsValidate
     },
     switchPasswordEdit() {
       this.editPasswordIsOpen = !this.editPasswordIsOpen;
     },
     async sendForm() {
-      this.loadingOn()
-      const isFormCorrect = await this.formValidate()
+      this.loadingOn();
+      const isFormCorrect = await this.formValidate();
+      console.log('isFormCorrect', isFormCorrect)
       if(!isFormCorrect) {
-        this.loadingOff()
-        return
+        this.loadingOff();
+        return;
       }
       this.user ? await this.update() : await this.create()
     },
