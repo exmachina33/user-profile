@@ -95,7 +95,10 @@ export default {
     async auth() {
       this.loadingOn()
       const isFormCorrect = await this.v$.$validate()
-      if (!isFormCorrect) return
+      if (!isFormCorrect) {
+        this.loadingOff();
+        return;
+      }
       const authUser = await loginUser({email: this.email, password: this.password})
       if (!authUser) {
         this.loadingOff()
